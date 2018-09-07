@@ -1,0 +1,27 @@
+---
+- name: Add sbt repo key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+
+- name: Add sbt repo
+  apt_repository:
+    repo: "deb https://dl.bintray.com/sbt/debian /"
+    state: present
+    update_cache: yes
+
+- name: Install sbt
+  apt:
+    package: sbt
+    state: present
+
+- name: Preload sbt packages (specified user)
+  become: yes
+  become_user: "{{ sbt_user }}"
+  shell: sbt -batch
+  when: sbt_user is defined and sbt_preload_libs == True
+
+- name: Preload sbt packages (default user)
+  become: no
+  shell: sbt -batch
+  when: sbt_user is not defined and sbt_preload_libs == True
